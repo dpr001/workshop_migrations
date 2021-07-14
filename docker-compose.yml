@@ -1,0 +1,37 @@
+version: '3'
+services:
+    web:
+        image: nginx:latest
+        ports:
+            - "8085:80"
+        volumes:
+            - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
+            - ./:/phinx
+        networks:
+              - phinx_net
+    php:
+        build:
+            context: .
+            dockerfile: PHP.Dockerfile
+        volumes:
+            - ./:/phinx
+        networks:
+              - phinx_net
+    postgresql:
+        image: bitnami/postgresql:latest
+        environment:
+            POSTGRESQL_USERNAME: 'phinx_user'
+            POSTGRESQL_PASSWORD: 'secret'
+            POSTGRESQL_DATABASE: 'phinx_db'
+        volumes:
+            - postgresql_data:/bitnami/postgresql
+        ports:
+            - 5440:5432
+        networks:
+              - phinx_net
+volumes:
+  postgresql_data:
+
+networks:
+      phinx_net:
+          driver: bridge
